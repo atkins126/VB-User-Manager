@@ -20,7 +20,6 @@ inherited UserDM: TUserDM
       end>
     ResourceOptions.AssignedValues = [rvAutoReconnect]
     ResourceOptions.AutoReconnect = True
-    Connected = True
     LoginPrompt = False
     Left = 559
     Top = 12
@@ -38,9 +37,11 @@ inherited UserDM: TUserDM
     ResourceOptions.AssignedValues = [rvSilentMode, rvStorePrettyPrint]
     ResourceOptions.StorePrettyPrint = True
     ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.AssignedValues = [uvGeneratorName, uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.GeneratorName = 'SYSTEM_USER_ID_GEN'
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
+    UpdateOptions.UpdateTableName = 'SYSTEM_USER'
     Left = 150
     Top = 10
     object cdsUserID: TIntegerField
@@ -92,10 +93,11 @@ inherited UserDM: TUserDM
   end
   object dtsUser: TDataSource
     DataSet = cdsUser
+    OnStateChange = dtsUserStateChange
     Left = 150
     Top = 65
   end
-  object cdsRight: TFDMemTable
+  object cdsUserRight: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -108,43 +110,35 @@ inherited UserDM: TUserDM
     ResourceOptions.AssignedValues = [rvSilentMode, rvStorePrettyPrint]
     ResourceOptions.StorePrettyPrint = True
     ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.AssignedValues = [uvGeneratorName, uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.GeneratorName = 'USER_RIGHT_ID_GEN'
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
+    UpdateOptions.UpdateTableName = 'USER_RIGHT'
     Left = 245
     Top = 10
-    object cdsRightID: TIntegerField
+    object cdsUserRightID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object cdsRightNAME: TStringField
+    object cdsUserRightNAME: TStringField
       FieldName = 'NAME'
       Origin = 'NAME'
       Required = True
       Size = 50
     end
-    object cdsRightDESCRIPTION: TStringField
+    object cdsUserRightDESCRIPTION: TStringField
       FieldName = 'DESCRIPTION'
       Origin = 'DESCRIPTION'
       Required = True
       Size = 255
     end
-    object cdsRightIS_ACTIVE: TIntegerField
+    object cdsUserRightIS_ACTIVE: TIntegerField
       FieldName = 'IS_ACTIVE'
       Origin = 'IS_ACTIVE'
       Required = True
-    end
-    object cdsRightTASK_ID: TIntegerField
-      FieldName = 'TASK_ID'
-      Origin = 'TASK_ID'
-      Required = True
-    end
-    object cdsRightEXE_NAME: TStringField
-      FieldName = 'EXE_NAME'
-      Origin = 'EXE_NAME'
-      Size = 40
     end
   end
   object cdsAssigned: TFDMemTable
@@ -160,9 +154,11 @@ inherited UserDM: TUserDM
     ResourceOptions.AssignedValues = [rvSilentMode, rvStorePrettyPrint]
     ResourceOptions.StorePrettyPrint = True
     ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.AssignedValues = [uvGeneratorName, uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.GeneratorName = 'ASSIGNED_RIGHT_ID_GEN'
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
+    UpdateOptions.UpdateTableName = 'ASSIGNED_RIGHT'
     Left = 330
     Top = 10
     object cdsAssignedID: TIntegerField
@@ -184,6 +180,16 @@ inherited UserDM: TUserDM
       Origin = 'RIGHT_ID'
       Required = True
     end
+    object cdsAssignedRIGHT_NAME: TStringField
+      DisplayLabel = 'Right'
+      FieldName = 'RIGHT_NAME'
+      Size = 50
+    end
+    object cdsAssignedRIGHT_DESC: TStringField
+      DisplayLabel = 'Description'
+      FieldName = 'RIGHT_DESC'
+      Size = 255
+    end
   end
   object cdsAvailable: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
@@ -203,16 +209,33 @@ inherited UserDM: TUserDM
     UpdateOptions.AutoCommitUpdates = True
     Left = 415
     Top = 10
+    object cdsAvailableID: TIntegerField
+      Alignment = taLeftJustify
+      FieldName = 'ID'
+    end
+    object cdsAvailableNAME: TStringField
+      DisplayLabel = 'Right'
+      FieldName = 'NAME'
+      Size = 50
+    end
+    object cdsAvailableDESCRIPTION: TStringField
+      DisplayLabel = 'Description'
+      FieldName = 'DESCRIPTION'
+      Size = 255
+    end
   end
-  object dtsRight: TDataSource
+  object dtsUserRight: TDataSource
+    DataSet = cdsUserRight
     Left = 245
     Top = 65
   end
   object dtsAssigned: TDataSource
+    DataSet = cdsAssigned
     Left = 330
     Top = 65
   end
   object dtsAvailable: TDataSource
+    DataSet = cdsAvailable
     Left = 415
     Top = 65
   end

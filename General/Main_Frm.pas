@@ -8,6 +8,7 @@ uses
   Vcl.Dialogs, System.Actions, Vcl.ActnList, System.Win.Registry,
 
   BaseLayout_Frm, VBProxyClass, CommonValues, CommonMethods, CommonFunctions,
+  VBCommonValues,
 
   cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
   dxSkinsDefaultPainters, cxImageList, dxLayoutLookAndFeels, cxClasses, dxBar,
@@ -15,7 +16,9 @@ uses
   cxDataStorage, cxEdit, cxNavigator, dxDateRanges, dxScrollbarAnnotations,
   Data.DB, cxDBData, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
-  cxCurrencyEdit, cxTextEdit, cxCheckBox, cxDBNavigator, dxSkinsForm;
+  cxCurrencyEdit, cxTextEdit, cxCheckBox, cxDBNavigator, dxSkinsForm,
+  cxDBLookupComboBox, Vcl.Menus, Vcl.StdCtrls, cxButtons,
+  dxLayoutControlAdapters, dxScreenTip, dxCustomHint, cxHint;
 
 type
   TMainFrm = class(TBaseLayoutFrm)
@@ -37,11 +40,76 @@ type
     lvlAssigned: TcxGridLevel;
     navUser: TcxDBNavigator;
     sknController: TdxSkinController;
+    imgNav: TcxImageList;
+    litToolbar: TdxLayoutItem;
+    litUserGrid: TdxLayoutItem;
+    grpRights: TdxLayoutGroup;
+    grpAssigned: TdxLayoutGroup;
+    grpAssignButtons: TdxLayoutGroup;
+    grpAvailable: TdxLayoutGroup;
+    grpControlButtons: TdxLayoutGroup;
+    litAssigned: TdxLayoutItem;
+    litAvailable: TdxLayoutItem;
+    edtAVID: TcxGridDBBandedColumn;
+    edtAVName: TcxGridDBBandedColumn;
+    edtAVDescription: TcxGridDBBandedColumn;
+    edtASID: TcxGridDBBandedColumn;
+    edtASUserID: TcxGridDBBandedColumn;
+    edtRightID: TcxGridDBBandedColumn;
+    edtRightName: TcxGridDBBandedColumn;
+    edtRightDescription: TcxGridDBBandedColumn;
+    btnAssign: TcxButton;
+    btnUnAssign: TcxButton;
+    btnAssignAll: TcxButton;
+    btnUnAssignAll: TcxButton;
+    litAssign: TdxLayoutItem;
+    litUnAssign: TdxLayoutItem;
+    litAssignAll: TdxLayoutItem;
+    litUnAssignAll: TdxLayoutItem;
+    spc1: TdxLayoutEmptySpaceItem;
+    sep1: TdxLayoutSeparatorItem;
+    lafLabel: TdxLayoutCxLookAndFeel;
+    barManager: TdxBarManager;
+    barToolbar: TdxBar;
+    docToolbar: TdxBarDockControl;
+    btnClose: TdxBarLargeButton;
+    btnInsert: TdxBarLargeButton;
+    btnDelete: TdxBarLargeButton;
+    btnEdit: TdxBarLargeButton;
+    btnRefresh: TdxBarLargeButton;
+    actExit: TAction;
+    actInsert: TAction;
+    actEdit: TAction;
+    actDelete: TAction;
+    actRefresh: TAction;
+    repScreenTip: TdxScreenTipRepository;
+    tipExit: TdxScreenTip;
+    tipInsert: TdxScreenTip;
+    tipEdit: TdxScreenTip;
+    tipDelete: TdxScreenTip;
+    tipRefresh: TdxScreenTip;
+    tipPreview: TdxScreenTip;
+    tipPrint: TdxScreenTip;
+    tipPDF: TdxScreenTip;
+    tipExcel: TdxScreenTip;
+    styHintController: TcxHintStyleController;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure navUserButtonsButtonClick(Sender: TObject; AButtonIndex: Integer;
+      var ADone: Boolean);
+    procedure DoExitUserManager(Sender: TObject);
+    procedure DoInsert(Sender: TObject);
+    procedure DoEdit(Sender: TObject);
+    procedure DoDelete(Sender: TObject);
+    procedure DoRefresh(Sender: TObject);
   private
     { Private declarations }
     procedure UpdateApplicationSkin(SkinResourceFileName, SkinName: string);
+    procedure SetButtonStatus(EditMode: Boolean);
+    procedure OpenTables;
+  protected
+    procedure HandleStateChange(var MyMsg: TMessage); message WM_STATE_CHANGE;
+    procedure DrawCellBorder(var Msg: TMessage); message CM_DRAWBORDER;
   public
     { Public declarations }
   end;
@@ -54,10 +122,79 @@ implementation
 {$R *.dfm}
 
 uses
-User_DM,
-VBBase_DM,
-RUtils,
-MsgDialog_Frm, VBCommonValues;
+  User_DM,
+  VBBase_DM,
+  RUtils,
+  MsgDialog_Frm;
+
+procedure TMainFrm.DrawCellBorder(var Msg: TMessage);
+begin
+  if (TObject(Msg.WParam) is TcxCanvas)
+    and (TObject(Msg.LParam) is TcxGridTableDataCellViewInfo) then
+    TcxCanvas(Msg.WParam).DrawComplexFrame(TcxGridTableDataCellViewInfo(Msg.LParam).ClientBounds, clRed, clRed, cxBordersAll, 1);
+end;
+
+procedure TMainFrm.HandleStateChange(var MyMsg: TMessage);
+var
+  EditMode: Boolean;
+begin
+  EditMode := StringToBoolean(PChar(MyMsg.WParam));
+  SetButtonStatus(EditMode);
+end;
+
+procedure TMainFrm.DoExitUserManager(Sender: TObject);
+begin
+  inherited;
+//
+end;
+
+procedure TMainFrm.DoInsert(Sender: TObject);
+begin
+  inherited;
+//  Screen.Cursor := crHourglass;
+//
+//  try
+//    case TAction(Sender).Tag of
+//      0: UserDM.cdsTimesheet.Insert;
+//      1: UserDM.cdsTimesheet.Edit;
+//    end;
+//
+//    if TimesheetEditFrm = nil then
+//      TimesheetEditFrm := TTimesheetEditFrm.Create(nil);
+//
+//    VBBaseDM.MyDataSet := UserDM.cdsTimesheet;
+//    VBBaseDM.MyDataSource := UserDM.dtsTimesheet;
+//
+//    if TimesheetEditFrm.ShowModal = mrCancel then
+//      if UserDM.cdsTimesheet.State in [dsEdit, dsInsert] then
+//        UserDM.cdsTimesheet.Cancel;
+//
+//    actRefresh.Execute;
+//
+//    TimesheetEditFrm.Close;
+//    FreeAndNil(TimesheetEditFrm);
+//  finally
+//    Screen.Cursor := crDefault;
+//  end;
+end;
+
+procedure TMainFrm.DoEdit(Sender: TObject);
+begin
+  inherited;
+//
+end;
+
+procedure TMainFrm.DoDelete(Sender: TObject);
+begin
+  inherited;
+//
+end;
+
+procedure TMainFrm.DoRefresh(Sender: TObject);
+begin
+  inherited;
+//
+end;
 
 procedure TMainFrm.FormCreate(Sender: TObject);
 begin
@@ -126,111 +263,61 @@ begin
       SkinName := DEFAULT_SKIN_NAME;
 
     UpdateApplicationSkin(SkinResourceFileName, SkinName);
-
     VBBaseDM.CurrentPeriod := RUtils.CurrentPeriod(Date);
     VBBaseDM.CurrentMonth := RUtils.MonthInt(Date);
+    viewUser.DataController.DataSource := UserDM.dtsUser;
+    navUser.DataSource := UserDM.dtsUser;
+    viewAssigned.DataController.DataSource := UserDM.dtsAssigned;
+    viewAvailable.DataController.DataSource := UserDM.dtsAvailable;
 
-  viewUser.DataController.DataSource := UserDM.dtsUser;
-  navUser.DataSource :=  UserDM.dtsUser;
-
-
-    viewTimesheet.DataController.DataSource := TSDM.dtsTimesheet;
-    viewTimesheetBillable.DataController.DataSource := ReportDM.dtsTSBillable;
-    TcxLookupComboBoxProperties(lucCustomer.Properties).listSource := TSDM.dtsCustomerLookup;
-    TcxLookupComboBoxProperties(lucPriceItem.Properties).listSource := TSDM.dtsPriceList;
-    TcxLookupComboBoxProperties(lucRateUnit.Properties).listSource := TSDM.dtsRateUnit;
-    TcxLookupComboBoxProperties(lucActivityType.Properties).listSource := TSDM.dtsActivityType;
-    TcxLookupComboBoxProperties(lucCustomerGroup.Properties).listSource := TSDM.dtsCustomerGroup;
-    TcxLookupComboBoxProperties(lucPeriod.Properties).listSource := TSDM.dtsTSPeriod;
-    TcxLookupComboBoxProperties(lucUser.Properties).listSource := TSDM.dtsSytemUser;
-    TcxDateEditProperties(dteFromDate.Properties).MinDate := StrToDate('01/01/2019');
-    TcxDateEditProperties(dteFromDate.Properties).MaxDate := Date;
-    TcxDateEditProperties(dteToDate.Properties).MinDate := StrToDate('01/01/2019');
-    TcxDateEditProperties(dteToDate.Properties).MaxDate := Date;
-
+//    viewTimesheet.DataController.DataSource := TSDM.dtsTimesheet;
+//    viewTimesheetBillable.DataController.DataSource := ReportDM.dtsTSBillable;
+//    TcxLookupComboBoxProperties(lucPriceItem.Properties).listSource := TSDM.dtsPriceList;
+//    TcxLookupComboBoxProperties(lucRateUnit.Properties).listSource := TSDM.dtsRateUnit;
+//    TcxLookupComboBoxProperties(lucActivityType.Properties).listSource := TSDM.dtsActivityType;
+//    TcxLookupComboBoxProperties(lucCustomerGroup.Properties).listSource := TSDM.dtsCustomerGroup;
+//    TcxLookupComboBoxProperties(lucPeriod.Properties).listSource := TSDM.dtsTSPeriod;
+//    TcxLookupComboBoxProperties(lucUser.Properties).listSource := TSDM.dtsSytemUser;
+//    TcxDateEditProperties(dteFromDate.Properties).MinDate := StrToDate('01/01/2019');
+//    TcxDateEditProperties(dteFromDate.Properties).MaxDate := Date;
+//    TcxDateEditProperties(dteToDate.Properties).MinDate := StrToDate('01/01/2019');
+//    TcxDateEditProperties(dteToDate.Properties).MaxDate := Date;
+//
     RegKey := TRegistry.Create(KEY_ALL_ACCESS or KEY_WRITE or KEY_WOW64_64KEY);
     RegKey.RootKey := HKEY_CURRENT_USER;
     try
       RegKey.OpenKey(KEY_USER_DATA, True);
       OpenTables;
-      TSDM.CurrentUserID := RegKey.ReadInteger('User ID');
+      UserDM.CurrentUserID := RegKey.ReadInteger('User ID');
 
-      if not TSDM.cdsSystemUser.Locate('ID', TSDM.CurrentUserID, []) then
+      if not UserDM.cdsUser.Locate('ID', UserDM.CurrentUserID, []) then
       begin
-        TSDM.cdsSystemUser.First;
-        TSDM.CurrentUserID := TSDM.cdsSystemUser.FieldByName('ID').AsInteger;
+        UserDM.cdsUser.First;
+        UserDM.CurrentUserID := UserDM.cdsUser.FieldByName('ID').AsInteger;
       end;
-      FTSUserID := TSDM.CurrentUserID;
+//      FTSUserID := UserDM.CurrentUserID;
+//      lucUser.EditValue := UserDM.CurrentUserID;
 
-// lucUser.SetFocus;
-// ALookupComboBox := TcxBarEditItemControl(lucUser.Links[0].Control).Edit as TcxLookupComboBox;
-// ALookupComboBox.EditValue := TSDM.CurrentUserID;
-// TcxLookupComboBox(lucUser).EditValue := TSDM.cdsSystemUser.FieldByName('LOGIN_NAME').AsString;
-// lucUser.EditValue := TSDM.CurrentUserID;
-      lucUser.EditValue := TSDM.CurrentUserID; // TSDM.cdsSystemUser.FieldByName('LOGIN_NAME').AsString;
       RegKey.CloseKey;
 
-      VerifyRegistry;
-      ReadRegValues;
+//      VerifyRegistry;
+//      ReadRegValues;
 
       RegKey.OpenKey(KEY_TIME_SHEET, True);
 
-// dteFromDate.SetFocus;
-// ADateEdit := TcxBarEditItemControl(dteFromDate.Links[0].Control).Edit as TcxDateEdit;
-// ADateEdit.Date := RegKey.ReadDate('From Date');
-      FFromDate := RegKey.ReadDate('From Date');
-      dteFromDate.EditValue := FFromDate;
-
-// dteToDate.SetFocus;
-// ADateEdit := TcxBarEditItemControl(dteToDate.Links[0].Control).Edit as TcxDateEdit;
-// ADateEdit.Date := RegKey.ReadDate('To Date');
-      FToDate := RegKey.ReadDate('To Date');
-      dteToDate.EditValue := FToDate;
-
-// lucPeriod.SetFocus;
-// ALookupComboBox := TcxBarEditItemControl(lucPeriod.Links[0].Control).Edit as TcxLookupComboBox;
-      FTimesheetPeriod := RegKey.ReadInteger('Period');
-// ALookupComboBox.EditValue := FTimesheetPeriod;
-      lucPeriod.EditValue := FTimesheetPeriod;
-
-      if not TSDM.cdsTSPeriod.Locate('THE_PERIOD', FTimesheetPeriod, []) then
-      begin
-        TSDM.cdsTSPeriod.First;
-        FTimesheetPeriod := TSDM.cdsTSPeriod.FieldByName('THE_PERIOD').AsInteger;
-      end;
-
-      GetMonthEndDate(FTimesheetPeriod);
-// lucViewMode.SetFocus;
-// AComboBox := TcxBarEditItemControl(lucViewMode.Links[0].Control).Edit as TcxComboBox;
-// AComboBox.ItemIndex := RegKey.ReadInteger('View Mode Index');
-      lucViewMode.ItemIndex := RegKey.ReadInteger('View Mode Index');
-
-// lucPeriod.SetFocus;
-// ALookupComboBox := TcxBarEditItemControl(lucPeriod.Links[0].Control).Edit as TcxLookupComboBox;
-// ALookupComboBox.EditValue := FTimesheetPeriod;
-//
-// dteFromDate.SetFocus;
-// ADateEdit := TcxBarEditItemControl(dteFromDate.Links[0].Control).Edit as TcxDateEdit;
-// ADateEdit.Date := RegKey.ReadDate('From Date');
-//
-// dteToDate.SetFocus;
-// ADateEdit := TcxBarEditItemControl(dteToDate.Links[0].Control).Edit as TcxDateEdit;
-// ADateEdit.Date := RegKey.ReadDate('To Date');
-//
       RegKey.CloseKey;
     finally
       RegKey.Free
     end;
 
-    actGetTimesheetData.Execute;
-    FIteration := 0;
-    grdTimesheet.SetFocus;
-    viewTimesheet.Focused := True;
-    if not TSDM.cdsTimesheet.IsEmpty then
+    grdUser.SetFocus;
+    viewUser.Focused := True;
+
+    if not UserDM.cdsUser.IsEmpty then
     begin
-      viewTimesheet.DataController.FocusedRecordIndex := 0;
-      viewTimesheet.Controller.FocusedRecord.Selected := True;
-      viewTimesheet.Controller.MakeFocusedItemVisible;
+      viewUser.DataController.FocusedRecordIndex := 0;
+      viewUser.Controller.FocusedRecord.Selected := True;
+      viewUser.Controller.MakeFocusedItemVisible;
     end;
 
     VBBaseDM.DBAction := acBrowsing;
@@ -254,12 +341,49 @@ begin
 // else
 // WindowState := wsMaximized;
   finally
-    FShowingForm := False;
+//    FShowingForm := False;
     Screen.Cursor := crDefault;
   end;
 
+end;
 
+procedure TMainFrm.navUserButtonsButtonClick(Sender: TObject;
+  AButtonIndex: Integer; var ADone: Boolean);
+begin
+  inherited;
+  case AButtonIndex of
+    NBDI_PRIOR:
+      begin
+        MainFrm.Close;
+      end;
+  end;
+end;
 
+procedure TMainFrm.OpenTables;
+begin
+  VBBaseDM.GetData(24, UserDM.cdsUser, UserDM.cdsUser.Name, ONE_SPACE,
+    'C:\Data\Xml\System User.xml', UserDM.cdsUser.UpdateOptions.Generatorname,
+    UserDM.cdsUser.UpdateOptions.UpdateTableName);
+
+  VBBaseDM.GetData(29, UserDM.cdsUserRight, UserDM.cdsUserRight.Name, ONE_SPACE,
+    'C:\Data\Xml\User Right.xml', UserDM.cdsUserRight.UpdateOptions.Generatorname,
+    UserDM.cdsUserRight.UpdateOptions.UpdateTableName);
+
+  VBBaseDM.GetData(31, UserDM.cdsAssigned, UserDM.cdsAssigned.Name, ONE_SPACE,
+    'C:\Data\Xml\Assigned Right.xml', UserDM.cdsAssigned.UpdateOptions.Generatorname,
+    UserDM.cdsAssigned.UpdateOptions.UpdateTableName);
+
+  VBBaseDM.GetData(32, UserDM.cdsAvailable, UserDM.cdsAvailable.Name, ONE_SPACE,
+    'C:\Data\Xml\Available Right.xml', UserDM.cdsAvailable.UpdateOptions.Generatorname,
+    UserDM.cdsAvailable.UpdateOptions.UpdateTableName);
+end;
+
+procedure TMainFrm.SetButtonStatus(EditMode: Boolean);
+begin
+  actInsert.Enabled := not EditMode;
+  actEdit.Enabled := not EditMode;
+  actDelete.Enabled := not EditMode;
+  actRefresh.Enabled := not EditMode;
 end;
 
 procedure TMainFrm.UpdateApplicationSkin(SkinResourceFileName,

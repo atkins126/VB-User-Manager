@@ -14,7 +14,6 @@ uses
   VBProxyClass in '..\Lib\VBProxyClass.pas',
   VBCommonValues in '..\..\Lib\VBCommonValues.pas',
   Progress_Frm in '..\..\..\..\Lib\Progress_Frm.pas' {ProgressFrm},
-  BaseGrid_Frm in '..\..\..\..\Lib\BaseGrid_Frm.pas' {BaseGridFrm},
   EditUser_Frm in 'General\EditUser_Frm.pas' {EditUserFrm},
   CommonMethods in '..\..\..\..\Lib\CommonMethods.pas',
   CommonFunctions in '..\..\..\..\Lib\CommonFunctions.pas';
@@ -24,7 +23,6 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TBaseDM, BaseDM);
-  Application.CreateForm(TBaseFrm, BaseFrm);
+  Application.Title := 'User Manager';
   Application.Run;
 end.

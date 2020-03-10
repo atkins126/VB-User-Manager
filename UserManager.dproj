@@ -80,9 +80,19 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Debug>true</VerInfo_Debug>
+        <VerInfo_Locale>7177</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=van Brakel and Associates;FileDescription=VB User Manager;FileVersion=1.1.1.2;InternalName=UserManager.exe;LegalCopyright=Express Talent;LegalTrademarks=Delphi 10.3.1 (Rio);OriginalFilename=UserManager.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VB User Manager;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Icon_MainIcon>..\Icons\Person 01.ico</Icon_MainIcon>
+        <DCC_ExeOutput>$(Bin)</DCC_ExeOutput>
+        <DCC_RunTimeTypeInfo>true</DCC_RunTimeTypeInfo>
+        <DCC_DcuOutput>$(Dcu)\User Manager</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -93,6 +103,15 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <DCC_ExeOutput>$(Bin)</DCC_ExeOutput>
+        <DCC_DcuOutput>$(Dcu)\User Manager</DCC_DcuOutput>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Locale>7177</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=van Brakel and Asociates;FileDescription=VB User Manager;FileVersion=1.1.1.2;InternalName=UserManager.exe;LegalCopyright=Express Talent;LegalTrademarks=Delphi 10.3.1 (Rio);OriginalFilename=UserManager.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VB User Manager;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Icon_MainIcon>..\Icons\Person 01.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -137,13 +156,8 @@
             <Form>ProgressFrm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\..\..\Lib\BaseGrid_Frm.pas">
-            <Form>BaseGridFrm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="General\EditUser_Frm.pas">
             <Form>EditUserFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\CommonMethods.pas"/>
         <DCCReference Include="..\..\..\..\Lib\CommonFunctions.pas"/>
@@ -167,9 +181,19 @@
                 <Source>
                     <Source Name="MainSource">UserManager.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\UserManager.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\..\..\Bin\UserManager.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win32">
+                        <RemoteName>UserManager.rsm</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\..\Bin\UserManager.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>UserManager.exe</RemoteName>
                         <Overwrite>true</Overwrite>
