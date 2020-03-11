@@ -24,7 +24,7 @@ inherited UserDM: TUserDM
     Left = 559
     Top = 12
   end
-  object cdsUser: TFDMemTable
+  object cdsSystemUser: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -44,56 +44,56 @@ inherited UserDM: TUserDM
     UpdateOptions.UpdateTableName = 'SYSTEM_USER'
     Left = 150
     Top = 10
-    object cdsUserID: TIntegerField
+    object cdsSystemUserID: TIntegerField
       Alignment = taLeftJustify
       FieldName = 'ID'
       Origin = 'ID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object cdsUserFIRST_NAME: TStringField
+    object cdsSystemUserFIRST_NAME: TStringField
       DisplayLabel = 'First Name'
       FieldName = 'FIRST_NAME'
       Origin = 'FIRST_NAME'
       Required = True
       Size = 30
     end
-    object cdsUserLAST_NAME: TStringField
+    object cdsSystemUserLAST_NAME: TStringField
       DisplayLabel = 'Last Name'
       FieldName = 'LAST_NAME'
       Origin = 'LAST_NAME'
       Required = True
       Size = 30
     end
-    object cdsUserLOGIN_NAME: TStringField
+    object cdsSystemUserLOGIN_NAME: TStringField
       DisplayLabel = 'Login Name'
       FieldName = 'LOGIN_NAME'
       Origin = 'LOGIN_NAME'
       Required = True
     end
-    object cdsUserEMAIL_ADDRESS: TStringField
+    object cdsSystemUserEMAIL_ADDRESS: TStringField
       DisplayLabel = 'Email Address'
       FieldName = 'EMAIL_ADDRESS'
       Origin = 'EMAIL_ADDRESS'
       Size = 100
     end
-    object cdsUserPASSWORD: TStringField
+    object cdsSystemUserPASSWORD: TStringField
       DisplayLabel = 'Password'
       FieldName = 'PASSWORD'
       Origin = '"PASSWORD"'
       Required = True
       Size = 100
     end
-    object cdsUserACCOUNT_ENABLED: TIntegerField
+    object cdsSystemUserACCOUNT_ENABLED: TIntegerField
       DisplayLabel = 'Account Enabled'
       FieldName = 'ACCOUNT_ENABLED'
       Origin = 'ACCOUNT_ENABLED'
       Required = True
     end
   end
-  object dtsUser: TDataSource
-    DataSet = cdsUser
-    OnStateChange = dtsUserStateChange
+  object dtsSystemUser: TDataSource
+    DataSet = cdsSystemUser
+    OnStateChange = dtsSystemUserStateChange
     Left = 150
     Top = 65
   end
@@ -141,7 +141,7 @@ inherited UserDM: TUserDM
       Required = True
     end
   end
-  object cdsAssigned: TFDMemTable
+  object cdsAssignedRight: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -161,37 +161,30 @@ inherited UserDM: TUserDM
     UpdateOptions.UpdateTableName = 'ASSIGNED_RIGHT'
     Left = 330
     Top = 10
-    object cdsAssignedID: TIntegerField
-      Alignment = taLeftJustify
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
-      Required = True
-    end
-    object cdsAssignedUSER_ID: TIntegerField
+    object cdsAssignedRightUSER_ID: TIntegerField
       Alignment = taLeftJustify
       FieldName = 'USER_ID'
       Origin = 'USER_ID'
       Required = True
     end
-    object cdsAssignedRIGHT_ID: TIntegerField
+    object cdsAssignedRightRIGHT_ID: TIntegerField
       Alignment = taLeftJustify
       FieldName = 'RIGHT_ID'
       Origin = 'RIGHT_ID'
       Required = True
     end
-    object cdsAssignedRIGHT_NAME: TStringField
+    object cdsAssignedRightRIGHT_NAME: TStringField
       DisplayLabel = 'Right'
       FieldName = 'RIGHT_NAME'
       Size = 50
     end
-    object cdsAssignedRIGHT_DESC: TStringField
+    object cdsAssignedRightRIGHT_DESC: TStringField
       DisplayLabel = 'Description'
       FieldName = 'RIGHT_DESC'
       Size = 255
     end
   end
-  object cdsAvailable: TFDMemTable
+  object cdsAvailableRight: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -207,18 +200,18 @@ inherited UserDM: TUserDM
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 415
+    Left = 430
     Top = 10
-    object cdsAvailableID: TIntegerField
+    object cdsAvailableRightID: TIntegerField
       Alignment = taLeftJustify
       FieldName = 'ID'
     end
-    object cdsAvailableNAME: TStringField
+    object cdsAvailableRightNAME: TStringField
       DisplayLabel = 'Right'
       FieldName = 'NAME'
       Size = 50
     end
-    object cdsAvailableDESCRIPTION: TStringField
+    object cdsAvailableRightDESCRIPTION: TStringField
       DisplayLabel = 'Description'
       FieldName = 'DESCRIPTION'
       Size = 255
@@ -229,14 +222,14 @@ inherited UserDM: TUserDM
     Left = 245
     Top = 65
   end
-  object dtsAssigned: TDataSource
-    DataSet = cdsAssigned
+  object dtsAssignedRight: TDataSource
+    DataSet = cdsAssignedRight
     Left = 330
     Top = 65
   end
-  object dtsAvailable: TDataSource
-    DataSet = cdsAvailable
-    Left = 415
+  object dtsAvailableRight: TDataSource
+    DataSet = cdsAvailableRight
+    Left = 430
     Top = 65
   end
 end

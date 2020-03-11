@@ -2,6 +2,8 @@ inherited MainFrm: TMainFrm
   Caption = 'MainFrm'
   ClientHeight = 819
   ClientWidth = 1299
+  OnClose = FormClose
+  OnDestroy = FormDestroy
   ExplicitWidth = 1315
   ExplicitHeight = 858
   PixelsPerInch = 96
@@ -20,7 +22,9 @@ inherited MainFrm: TMainFrm
       object viewUser: TcxGridDBBandedTableView
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
-        DataController.DataSource = UserDM.dtsUser
+        OnCustomDrawCell = viewUserCustomDrawCell
+        OnFocusedRecordChanged = viewUserFocusedRecordChanged
+        DataController.DataSource = UserDM.dtsSystemUser
         DataController.Options = [dcoCaseInsensitive, dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoSortByDisplayText]
         DataController.Summary.DefaultGroupSummaryItems = <>
         DataController.Summary.FooterSummaryItems = <>
@@ -155,11 +159,16 @@ inherited MainFrm: TMainFrm
       Top = 312
       Width = 420
       Height = 200
+      DragMode = dmAutomatic
       TabOrder = 7
       object viewAvailable: TcxGridDBBandedTableView
+        DragMode = dmAutomatic
+        OnDragDrop = viewAvailableDragDrop
+        OnDragOver = viewAvailableDragOver
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
-        DataController.DataSource = UserDM.dtsAvailable
+        OnCustomDrawCell = viewUserCustomDrawCell
+        DataController.DataSource = UserDM.dtsAvailableRight
         DataController.Options = [dcoCaseInsensitive, dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoSortByDisplayText]
         DataController.Summary.DefaultGroupSummaryItems = <>
         DataController.Summary.FooterSummaryItems = <>
@@ -233,11 +242,16 @@ inherited MainFrm: TMainFrm
       Top = 312
       Width = 420
       Height = 200
+      DragMode = dmAutomatic
       TabOrder = 2
       object viewAssigned: TcxGridDBBandedTableView
+        DragMode = dmAutomatic
+        OnDragDrop = viewAssignedDragDrop
+        OnDragOver = viewAssignedDragOver
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
-        DataController.DataSource = UserDM.dtsAssigned
+        OnCustomDrawCell = viewUserCustomDrawCell
+        DataController.DataSource = UserDM.dtsAssignedRight
         DataController.Options = [dcoCaseInsensitive, dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoSortByDisplayText]
         DataController.Summary.DefaultGroupSummaryItems = <>
         DataController.Summary.FooterSummaryItems = <>
@@ -355,12 +369,12 @@ inherited MainFrm: TMainFrm
       ShowHint = True
       TabOrder = 3
     end
-    object btnUnAssign: TcxButton [4]
+    object btnRemoveRight: TcxButton [4]
       Left = 455
       Top = 433
       Width = 125
       Height = 25
-      Caption = 'Un-Assign'
+      Caption = 'Remove'
       OptionsImage.ImageIndex = 1
       OptionsImage.Images = img16
       OptionsImage.Layout = blGlyphRight
@@ -380,12 +394,12 @@ inherited MainFrm: TMainFrm
       ShowHint = True
       TabOrder = 4
     end
-    object btnUnAssignAll: TcxButton [6]
+    object btnRemoveAll: TcxButton [6]
       Left = 455
       Top = 464
       Width = 125
       Height = 25
-      Caption = 'Un-Assign All'
+      Caption = 'Remove All'
       OptionsImage.ImageIndex = 3
       OptionsImage.Images = img16
       OptionsImage.Layout = blGlyphRight
@@ -492,7 +506,7 @@ inherited MainFrm: TMainFrm
     end
     object litAssignAll: TdxLayoutItem
       Parent = grpAssignButtons
-      Control = btnUnAssign
+      Control = btnRemoveRight
       ControlOptions.OriginalHeight = 25
       ControlOptions.OriginalWidth = 120
       ControlOptions.ShowBorder = False
@@ -500,7 +514,7 @@ inherited MainFrm: TMainFrm
     end
     object litUnAssignAll: TdxLayoutItem
       Parent = grpAssignButtons
-      Control = btnUnAssignAll
+      Control = btnRemoveAll
       ControlOptions.OriginalHeight = 25
       ControlOptions.OriginalWidth = 120
       ControlOptions.ShowBorder = False
@@ -519,49 +533,6 @@ inherited MainFrm: TMainFrm
       Index = 3
     end
   end
-  object navUser: TcxDBNavigator [1]
-    Left = 45
-    Top = 592
-    Width = 218
-    Height = 40
-    Buttons.OnButtonClick = navUserButtonsButtonClick
-    Buttons.CustomButtons = <>
-    Buttons.Images = imgNav
-    Buttons.First.Hint = 'Go to first record'
-    Buttons.First.Visible = False
-    Buttons.PriorPage.Hint = 'move back 10 records'
-    Buttons.PriorPage.Visible = False
-    Buttons.Prior.Hint = 'Close User Manager'
-    Buttons.Prior.ImageIndex = 7
-    Buttons.Prior.Visible = True
-    Buttons.Next.Hint = 'Go to next record'
-    Buttons.Next.Visible = False
-    Buttons.NextPage.Hint = 'Move forward 10 records'
-    Buttons.NextPage.Visible = False
-    Buttons.Last.Hint = 'Go to last record'
-    Buttons.Last.Visible = False
-    Buttons.Insert.Hint = 'Insert a new record'
-    Buttons.Insert.ImageIndex = 0
-    Buttons.Append.Hint = 'Add a neew record'
-    Buttons.Delete.Hint = 'delete selected records'
-    Buttons.Delete.ImageIndex = 1
-    Buttons.Edit.Hint = 'Edit selected record'
-    Buttons.Edit.ImageIndex = 4
-    Buttons.Post.Hint = 'Save changes'
-    Buttons.Post.Visible = False
-    Buttons.Cancel.Hint = 'Cancel changes'
-    Buttons.Cancel.ImageIndex = 3
-    Buttons.Refresh.Hint = 'Refresh dataset'
-    Buttons.Refresh.ImageIndex = 5
-    Buttons.SaveBookmark.Visible = False
-    Buttons.GotoBookmark.Visible = False
-    Buttons.Filter.Hint = 'Filter dataset'
-    Buttons.Filter.Visible = False
-    DataSource = UserDM.dtsUser
-    ParentShowHint = False
-    ShowHint = True
-    TabOrder = 5
-  end
   inherited styRepository: TcxStyleRepository
     Left = 155
     Top = 200
@@ -572,31 +543,44 @@ inherited MainFrm: TMainFrm
     Left = 70
     Top = 200
     object actExit: TAction
+      Category = 'System'
       Caption = 'Exit'
       ImageIndex = 0
       OnExecute = DoExitUserManager
     end
     object actInsert: TAction
+      Category = 'DB Action'
       Caption = 'Insert'
       ImageIndex = 1
       OnExecute = DoInsert
     end
     object actEdit: TAction
       Tag = 1
+      Category = 'DB Action'
       Caption = 'Edit'
       ImageIndex = 2
       OnExecute = DoEdit
     end
     object actDelete: TAction
+      Category = 'DB Action'
       Caption = 'Delete'
       ImageIndex = 3
       Visible = False
       OnExecute = DoDelete
     end
     object actRefresh: TAction
+      Category = 'DB Action'
       Caption = 'Refresh'
       ImageIndex = 6
       OnExecute = DoRefresh
+    end
+    object actAssignRight: TAction
+      Caption = 'Assign'
+      OnExecute = DoAssignRight
+    end
+    object actRemoveRight: TAction
+      Caption = 'Remove'
+      OnExecute = DoRemoveRight
     end
   end
   inherited lafLayoutList: TdxLayoutLookAndFeelList

@@ -19,34 +19,33 @@ uses
 type
   TUserDM = class(TVBBaseDM)
     VbdevConnection: TFDConnection;
-    cdsUser: TFDMemTable;
-    dtsUser: TDataSource;
-    cdsUserID: TIntegerField;
-    cdsUserFIRST_NAME: TStringField;
-    cdsUserLAST_NAME: TStringField;
-    cdsUserLOGIN_NAME: TStringField;
-    cdsUserEMAIL_ADDRESS: TStringField;
-    cdsUserPASSWORD: TStringField;
-    cdsUserACCOUNT_ENABLED: TIntegerField;
+    cdsSystemUser: TFDMemTable;
+    dtsSystemUser: TDataSource;
+    cdsSystemUserID: TIntegerField;
+    cdsSystemUserFIRST_NAME: TStringField;
+    cdsSystemUserLAST_NAME: TStringField;
+    cdsSystemUserLOGIN_NAME: TStringField;
+    cdsSystemUserEMAIL_ADDRESS: TStringField;
+    cdsSystemUserPASSWORD: TStringField;
+    cdsSystemUserACCOUNT_ENABLED: TIntegerField;
     cdsUserRight: TFDMemTable;
-    cdsAssigned: TFDMemTable;
-    cdsAvailable: TFDMemTable;
+    cdsAssignedRight: TFDMemTable;
+    cdsAvailableRight: TFDMemTable;
     dtsUserRight: TDataSource;
-    dtsAssigned: TDataSource;
-    dtsAvailable: TDataSource;
+    dtsAssignedRight: TDataSource;
+    dtsAvailableRight: TDataSource;
     cdsUserRightID: TIntegerField;
     cdsUserRightNAME: TStringField;
     cdsUserRightDESCRIPTION: TStringField;
     cdsUserRightIS_ACTIVE: TIntegerField;
-    cdsAssignedID: TIntegerField;
-    cdsAssignedUSER_ID: TIntegerField;
-    cdsAssignedRIGHT_ID: TIntegerField;
-    cdsAvailableID: TIntegerField;
-    cdsAvailableNAME: TStringField;
-    cdsAvailableDESCRIPTION: TStringField;
-    cdsAssignedRIGHT_NAME: TStringField;
-    cdsAssignedRIGHT_DESC: TStringField;
-    procedure dtsUserStateChange(Sender: TObject);
+    cdsAssignedRightUSER_ID: TIntegerField;
+    cdsAssignedRightRIGHT_ID: TIntegerField;
+    cdsAvailableRightID: TIntegerField;
+    cdsAvailableRightNAME: TStringField;
+    cdsAvailableRightDESCRIPTION: TStringField;
+    cdsAssignedRightRIGHT_NAME: TStringField;
+    cdsAssignedRightRIGHT_DESC: TStringField;
+    procedure dtsSystemUserStateChange(Sender: TObject);
   private
     FCurrentUserID: Integer;
     { Private declarations }
@@ -67,12 +66,13 @@ uses RUtils;
 
 {$R *.dfm}
 
-procedure TUserDM.dtsUserStateChange(Sender: TObject);
+procedure TUserDM.dtsSystemUserStateChange(Sender: TObject);
 var
   EditMode: string;
 begin
   EditMode := BooleanToString(TFDMemTable(Sender).State in [dsEdit, dsInsert]);
   SendMessage(Application.MainForm.Handle, WM_STATE_CHANGE, DWORD(PChar(EditMode)), 0);
 end;
+
 
 end.

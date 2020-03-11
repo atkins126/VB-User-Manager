@@ -119,48 +119,40 @@
         </DelphiCompile>
         <DCCReference Include="..\..\..\..\Lib\Base_DM.pas">
             <Form>BaseDM</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\Base_Frm.pas">
             <Form>BaseFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\BaseLayout_Frm.pas">
             <Form>BaseLayoutFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\CommonValues.pas"/>
         <DCCReference Include="..\..\..\..\Lib\MsgDialog_Frm.pas">
             <Form>msgDialogFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\RUtils.pas"/>
         <DCCReference Include="..\..\Lib\VBBase_DM.pas">
             <Form>VBBaseDM</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="General\Main_Frm.pas">
             <Form>MainFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Data Modules\User_DM.pas">
             <Form>UserDM</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\Lib\VBProxyClass.pas"/>
         <DCCReference Include="..\..\Lib\VBCommonValues.pas"/>
         <DCCReference Include="..\..\..\..\Lib\Progress_Frm.pas">
             <Form>ProgressFrm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="General\EditUser_Frm.pas">
             <Form>EditUserFrm</Form>
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\CommonMethods.pas"/>
         <DCCReference Include="..\..\..\..\Lib\CommonFunctions.pas"/>
+        <DCCReference Include="..\Lib\VBProxyClass.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
