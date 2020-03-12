@@ -1,25 +1,28 @@
 inherited MainFrm: TMainFrm
+  BorderIcons = []
+  BorderStyle = bsNone
   Caption = 'MainFrm'
-  ClientHeight = 819
-  ClientWidth = 1299
+  ClientHeight = 611
+  ClientWidth = 1081
   OnClose = FormClose
   OnDestroy = FormDestroy
-  ExplicitWidth = 1315
-  ExplicitHeight = 858
+  ExplicitWidth = 1081
+  ExplicitHeight = 611
   PixelsPerInch = 96
   TextHeight = 13
   inherited layMain: TdxLayoutControl
-    Width = 1036
-    Height = 681
-    ExplicitWidth = 1036
-    ExplicitHeight = 681
+    Width = 1071
+    Height = 601
+    ExplicitWidth = 1071
+    ExplicitHeight = 601
     object grdUser: TcxGrid [0]
       Left = 11
       Top = 75
-      Width = 1014
-      Height = 200
+      Width = 1049
+      Height = 225
       TabOrder = 1
       object viewUser: TcxGridDBBandedTableView
+        OnDblClick = viewUserDblClick
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
         OnCustomDrawCell = viewUserCustomDrawCell
@@ -131,7 +134,7 @@ inherited MainFrm: TMainFrm
           Position.RowIndex = 0
         end
         object cbxAccountEnabled: TcxGridDBBandedColumn
-          Caption = 'Enbd'
+          Caption = 'Enabled'
           DataBinding.FieldName = 'ACCOUNT_ENABLED'
           PropertiesClassName = 'TcxCheckBoxProperties'
           Properties.Alignment = taCenter
@@ -144,7 +147,7 @@ inherited MainFrm: TMainFrm
           Options.IncSearch = False
           Options.Grouping = False
           Options.Moving = False
-          Width = 40
+          Width = 60
           Position.BandIndex = 0
           Position.ColIndex = 6
           Position.RowIndex = 0
@@ -155,16 +158,17 @@ inherited MainFrm: TMainFrm
       end
     end
     object grdAvailable: TcxGrid [1]
-      Left = 595
-      Top = 312
+      Left = 615
+      Top = 337
       Width = 420
-      Height = 200
+      Height = 225
       DragMode = dmAutomatic
       TabOrder = 7
       object viewAvailable: TcxGridDBBandedTableView
         DragMode = dmAutomatic
         OnDragDrop = viewAvailableDragDrop
         OnDragOver = viewAvailableDragOver
+        OnStartDrag = viewAvailableStartDrag
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
         OnCustomDrawCell = viewUserCustomDrawCell
@@ -176,6 +180,9 @@ inherited MainFrm: TMainFrm
         OptionsBehavior.FocusCellOnTab = True
         OptionsBehavior.NavigatorHints = True
         OptionsBehavior.FocusCellOnCycle = True
+        OptionsSelection.MultiSelect = True
+        OptionsSelection.CheckBoxVisibility = [cbvDataRow, cbvColumnHeader]
+        OptionsSelection.MultiSelectMode = msmPersistent
         OptionsView.NoDataToDisplayInfoText = '<No Assigned Rights to display>'
         OptionsView.ColumnAutoWidth = True
         OptionsView.GroupByBox = False
@@ -239,15 +246,16 @@ inherited MainFrm: TMainFrm
     end
     object grdAssigned: TcxGrid [2]
       Left = 20
-      Top = 312
+      Top = 337
       Width = 420
-      Height = 200
+      Height = 225
       DragMode = dmAutomatic
       TabOrder = 2
       object viewAssigned: TcxGridDBBandedTableView
         DragMode = dmAutomatic
         OnDragDrop = viewAssignedDragDrop
         OnDragOver = viewAssignedDragOver
+        OnStartDrag = viewAssignedStartDrag
         Navigator.Buttons.CustomButtons = <>
         ScrollbarAnnotations.CustomAnnotations = <>
         OnCustomDrawCell = viewUserCustomDrawCell
@@ -259,6 +267,9 @@ inherited MainFrm: TMainFrm
         OptionsBehavior.FocusCellOnTab = True
         OptionsBehavior.NavigatorHints = True
         OptionsBehavior.FocusCellOnCycle = True
+        OptionsSelection.MultiSelect = True
+        OptionsSelection.CheckBoxVisibility = [cbvDataRow, cbvColumnHeader]
+        OptionsSelection.MultiSelectMode = msmPersistent
         OptionsView.NoDataToDisplayInfoText = '<No Available Rights to display>'
         OptionsView.ColumnAutoWidth = True
         OptionsView.GroupByBox = False
@@ -359,10 +370,10 @@ inherited MainFrm: TMainFrm
     end
     object btnAssign: TcxButton [3]
       Left = 455
-      Top = 359
-      Width = 125
+      Top = 384
+      Width = 145
       Height = 25
-      Caption = 'Assign'
+      Action = actAssignRight
       OptionsImage.ImageIndex = 0
       OptionsImage.Images = img16
       ParentShowHint = False
@@ -371,10 +382,10 @@ inherited MainFrm: TMainFrm
     end
     object btnRemoveRight: TcxButton [4]
       Left = 455
-      Top = 433
-      Width = 125
+      Top = 458
+      Width = 145
       Height = 25
-      Caption = 'Remove'
+      Action = actRemoveRight
       OptionsImage.ImageIndex = 1
       OptionsImage.Images = img16
       OptionsImage.Layout = blGlyphRight
@@ -383,11 +394,12 @@ inherited MainFrm: TMainFrm
       TabOrder = 5
     end
     object btnAssignAll: TcxButton [5]
+      Tag = 1
       Left = 455
-      Top = 390
-      Width = 125
+      Top = 415
+      Width = 145
       Height = 25
-      Caption = 'Assign All'
+      Action = actAssignAllRights
       OptionsImage.ImageIndex = 2
       OptionsImage.Images = img16
       ParentShowHint = False
@@ -396,10 +408,10 @@ inherited MainFrm: TMainFrm
     end
     object btnRemoveAll: TcxButton [6]
       Left = 455
-      Top = 464
-      Width = 125
+      Top = 489
+      Width = 145
       Height = 25
-      Caption = 'Remove All'
+      Action = actRemovAllRights
       OptionsImage.ImageIndex = 3
       OptionsImage.Images = img16
       OptionsImage.Layout = blGlyphRight
@@ -414,6 +426,9 @@ inherited MainFrm: TMainFrm
       Height = 58
       Align = dalNone
       BarManager = barManager
+    end
+    inherited layMainGroup_Root: TdxLayoutGroup
+      ItemIndex = 2
     end
     object litToolbar: TdxLayoutItem
       Parent = layMainGroup_Root
@@ -430,7 +445,7 @@ inherited MainFrm: TMainFrm
       Parent = layMainGroup_Root
       CaptionOptions.Visible = False
       Control = grdUser
-      ControlOptions.OriginalHeight = 200
+      ControlOptions.OriginalHeight = 225
       ControlOptions.OriginalWidth = 801
       ControlOptions.ShowBorder = False
       Index = 1
@@ -464,17 +479,11 @@ inherited MainFrm: TMainFrm
       ShowBorder = False
       Index = 2
     end
-    object grpControlButtons: TdxLayoutGroup
-      Parent = layMainGroup_Root
-      CaptionOptions.Text = 'New Group'
-      ButtonOptions.Buttons = <>
-      Index = 3
-    end
     object litAssigned: TdxLayoutItem
       Parent = grpAssigned
       CaptionOptions.Visible = False
       Control = grdAssigned
-      ControlOptions.OriginalHeight = 200
+      ControlOptions.OriginalHeight = 225
       ControlOptions.OriginalWidth = 420
       ControlOptions.ShowBorder = False
       Index = 0
@@ -483,40 +492,48 @@ inherited MainFrm: TMainFrm
       Parent = grpAvailable
       CaptionOptions.Visible = False
       Control = grdAvailable
-      ControlOptions.OriginalHeight = 200
+      ControlOptions.OriginalHeight = 225
       ControlOptions.OriginalWidth = 420
       ControlOptions.ShowBorder = False
       Index = 0
     end
-    object litAssign: TdxLayoutItem
+    object litAssignRight: TdxLayoutItem
       Parent = grpAssignButtons
+      CaptionOptions.Text = 'btnAssign'
+      CaptionOptions.Visible = False
       Control = btnAssign
       ControlOptions.OriginalHeight = 25
-      ControlOptions.OriginalWidth = 120
+      ControlOptions.OriginalWidth = 145
       ControlOptions.ShowBorder = False
       Index = 1
     end
-    object litUnAssign: TdxLayoutItem
+    object litRemovAssignedRight: TdxLayoutItem
       Parent = grpAssignButtons
-      Control = btnAssignAll
-      ControlOptions.OriginalHeight = 25
-      ControlOptions.OriginalWidth = 120
-      ControlOptions.ShowBorder = False
-      Index = 2
-    end
-    object litAssignAll: TdxLayoutItem
-      Parent = grpAssignButtons
+      CaptionOptions.Text = 'btnRemoveRight'
+      CaptionOptions.Visible = False
       Control = btnRemoveRight
       ControlOptions.OriginalHeight = 25
-      ControlOptions.OriginalWidth = 120
+      ControlOptions.OriginalWidth = 145
       ControlOptions.ShowBorder = False
       Index = 4
     end
-    object litUnAssignAll: TdxLayoutItem
+    object litAssignAllRights: TdxLayoutItem
       Parent = grpAssignButtons
+      CaptionOptions.Text = 'btnAssignAll'
+      CaptionOptions.Visible = False
+      Control = btnAssignAll
+      ControlOptions.OriginalHeight = 25
+      ControlOptions.OriginalWidth = 145
+      ControlOptions.ShowBorder = False
+      Index = 2
+    end
+    object litRemoveAllRIghts: TdxLayoutItem
+      Parent = grpAssignButtons
+      CaptionOptions.Text = 'btnRemoveAll'
+      CaptionOptions.Visible = False
       Control = btnRemoveAll
       ControlOptions.OriginalHeight = 25
-      ControlOptions.OriginalWidth = 120
+      ControlOptions.OriginalWidth = 145
       ControlOptions.ShowBorder = False
       Index = 5
     end
@@ -552,7 +569,7 @@ inherited MainFrm: TMainFrm
       Category = 'DB Action'
       Caption = 'Insert'
       ImageIndex = 1
-      OnExecute = DoInsert
+      OnExecute = DoEdit
     end
     object actEdit: TAction
       Tag = 1
@@ -575,11 +592,21 @@ inherited MainFrm: TMainFrm
       OnExecute = DoRefresh
     end
     object actAssignRight: TAction
-      Caption = 'Assign'
+      Caption = 'Assign Right'
       OnExecute = DoAssignRight
     end
     object actRemoveRight: TAction
-      Caption = 'Remove'
+      Caption = 'Remove Right'
+      OnExecute = DoRemoveRight
+    end
+    object actAssignAllRights: TAction
+      Tag = 1
+      Caption = 'Assign All Rights'
+      OnExecute = DoAssignRight
+    end
+    object actRemovAllRights: TAction
+      Tag = 1
+      Caption = 'Remove All Rights'
       OnExecute = DoRemoveRight
     end
   end

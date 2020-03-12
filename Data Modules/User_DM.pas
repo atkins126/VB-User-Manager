@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, VBBase_DM, Vcl.Forms, Data.DBXDataSnap,
   WinApi.Windows,
 
-  VBCommonValues,
+  CommonValues, VBCommonValues,
 
   Data.DBXCommon, IPPeerClient,
 
@@ -46,6 +46,10 @@ type
     cdsAssignedRightRIGHT_NAME: TStringField;
     cdsAssignedRightRIGHT_DESC: TStringField;
     procedure dtsSystemUserStateChange(Sender: TObject);
+    procedure PostData(DataSet: TFDMemTable);
+    procedure cdsSystemUserBeforeEdit(DataSet: TDataSet);
+    procedure cdsSystemUserNewRecord(DataSet: TDataSet);
+    procedure cdsSystemUserAfterPost(DataSet: TDataSet);
   private
     FCurrentUserID: Integer;
     { Private declarations }
@@ -66,6 +70,25 @@ uses RUtils;
 
 {$R *.dfm}
 
+procedure TUserDM.cdsSystemUserAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  VBBaseDM.DBAction := acBrowsing;
+end;
+
+procedure TUserDM.cdsSystemUserBeforeEdit(DataSet: TDataSet);
+begin
+  inherited;
+    VBBaseDM.DBAction := acModify;
+end;
+
+procedure TUserDM.cdsSystemUserNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  VBBaseDM.DBAction := acInsert;
+  cdsSystemUser.FieldByName('ID').AsInteger := 0;
+end;
+
 procedure TUserDM.dtsSystemUserStateChange(Sender: TObject);
 var
   EditMode: string;
@@ -74,5 +97,12 @@ begin
   SendMessage(Application.MainForm.Handle, WM_STATE_CHANGE, DWORD(PChar(EditMode)), 0);
 end;
 
+
+procedure TUserDM.PostData(DataSet: TFDMemTable);
+begin
+  SetLength(VBBaseDM.FDataSetArray, 1);
+  VBBaseDM.FDataSetArray[0] := TFDMemTable(DataSet);
+  VBBaseDM.ApplyUpdates(VBBaseDM.FDataSetArray, TFDMemTable(DataSet).UpdateOptions.Generatorname, TFDMemTable(DataSet).UpdateOptions.UpdateTableName);
+end;
 
 end.

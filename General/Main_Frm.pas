@@ -46,7 +46,6 @@ type
     grpAssigned: TdxLayoutGroup;
     grpAssignButtons: TdxLayoutGroup;
     grpAvailable: TdxLayoutGroup;
-    grpControlButtons: TdxLayoutGroup;
     litAssigned: TdxLayoutItem;
     litAvailable: TdxLayoutItem;
     edtAVID: TcxGridDBBandedColumn;
@@ -61,10 +60,10 @@ type
     btnRemoveRight: TcxButton;
     btnAssignAll: TcxButton;
     btnRemoveAll: TcxButton;
-    litAssign: TdxLayoutItem;
-    litUnAssign: TdxLayoutItem;
-    litAssignAll: TdxLayoutItem;
-    litUnAssignAll: TdxLayoutItem;
+    litAssignRight: TdxLayoutItem;
+    litRemovAssignedRight: TdxLayoutItem;
+    litAssignAllRights: TdxLayoutItem;
+    litRemoveAllRIghts: TdxLayoutItem;
     spc1: TdxLayoutEmptySpaceItem;
     sep1: TdxLayoutSeparatorItem;
     lafLabel: TdxLayoutCxLookAndFeel;
@@ -94,10 +93,11 @@ type
     styHintController: TcxHintStyleController;
     actAssignRight: TAction;
     actRemoveRight: TAction;
+    actAssignAllRights: TAction;
+    actRemovAllRights: TAction;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DoExitUserManager(Sender: TObject);
-    procedure DoInsert(Sender: TObject);
     procedure DoEdit(Sender: TObject);
     procedure DoDelete(Sender: TObject);
     procedure DoRefresh(Sender: TObject);
@@ -118,9 +118,17 @@ type
     procedure viewAvailableDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure DoAssignRight(Sender: TObject);
     procedure DoRemoveRight(Sender: TObject);
+    procedure DoAssignAllRights(Sender: TObject);
+    procedure DoRemoveAllRights(Sender: TObject);
+    procedure viewAvailableStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
+    procedure viewAssignedStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
+    procedure viewUserDblClick(Sender: TObject);
   private
     { Private declarations }
     FRecIndexList: TList;
+    FActionTag: Integer;
 
     procedure UpdateApplicationSkin(SkinResourceFileName, SkinName: string);
     procedure SetButtonStatus(EditMode: Boolean);
@@ -137,6 +145,10 @@ type
 var
   MainFrm: TMainFrm;
 
+const
+  ASSIGN_RIGHT = 'INSERT INTO ASSIGNED_RIGHT(USER_ID, RIGHT_ID) VALUES(%s)';
+  DELETE_RIGHT = 'DELETE FROM ASSIGNED_RIGHT WHERE USER_ID IN(%s) AND RIGHT_ID IN(%s)';
+
 implementation
 
 {$R *.dfm}
@@ -145,7 +157,7 @@ uses
   User_DM,
   VBBase_DM,
   RUtils,
-  MsgDialog_Frm;
+  MsgDialog_Frm, EditUser_Frm;
 
 procedure TMainFrm.DrawCellBorder(var Msg: TMessage);
 begin
@@ -168,40 +180,34 @@ begin
   MainFrm.Close;
 end;
 
-procedure TMainFrm.DoInsert(Sender: TObject);
-begin
-  inherited;
-// Screen.Cursor := crHourglass;
-//
-// try
-// case TAction(Sender).Tag of
-// 0: UserDM.cdsTimesheet.Insert;
-// 1: UserDM.cdsTimesheet.Edit;
-// end;
-//
-// if TimesheetEditFrm = nil then
-// TimesheetEditFrm := TTimesheetEditFrm.Create(nil);
-//
-// VBBaseDM.MyDataSet := UserDM.cdsTimesheet;
-// VBBaseDM.MyDataSource := UserDM.dtsTimesheet;
-//
-// if TimesheetEditFrm.ShowModal = mrCancel then
-// if UserDM.cdsTimesheet.State in [dsEdit, dsInsert] then
-// UserDM.cdsTimesheet.Cancel;
-//
-// actRefresh.Execute;
-//
-// TimesheetEditFrm.Close;
-// FreeAndNil(TimesheetEditFrm);
-// finally
-// Screen.Cursor := crDefault;
-// end;
-end;
-
 procedure TMainFrm.DoEdit(Sender: TObject);
 begin
   inherited;
-//
+  Screen.Cursor := crHourglass;
+
+  try
+    case TAction(Sender).Tag of
+      0: UserDM.cdsSystemUser.Insert;
+      1: UserDM.cdsSystemUser.Edit;
+    end;
+
+    if EditUserFrm = nil then
+      EditUserFrm := TEditUserFrm.Create(nil);
+
+    VBBaseDM.MyDataSet := UserDM.cdsSystemUser;
+    VBBaseDM.MyDataSource := UserDM.dtsSystemUser;
+
+    if EditUserFrm.ShowModal = mrCancel then
+      if UserDM.cdsSystemUser.State in [dsEdit, dsInsert] then
+        UserDM.cdsSystemUser.Cancel
+      else
+        actRefresh.Execute;
+
+    EditUserFrm.Close;
+    FreeAndNil(EditUserFrm);
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 procedure TMainFrm.DoDelete(Sender: TObject);
@@ -216,137 +222,141 @@ begin
 //
 end;
 
+//Assigining of user rights ----------------------------------------------------
+
 procedure TMainFrm.DoAssignRight(Sender: TObject);
 var
-  I, J: Integer;
+  I: Integer;
   C: TcxGridTableController;
-  {SL, }InputList, Response: TStringList;
-  Request : string;
-  DC: TcxDBDataController;
+  Response: TStringList;
+  Request: string;
 begin
   inherited;
   // First find out if this user has SuperUser rights. If so, then it is not
   // necesary to add any other rights to this user's profile since the SuperUser
   // has full rights.
 
+  Screen.Cursor := crHourglass;
+  Response := RUtils.CreateStringList(PIPE, SINGLE_QUOTE);
+  FActionTag := TAction(Sender).Tag;
+  C := viewAvailable.Controller;
+
   try
-    if viewAvailable.Controller.SelectedRecordCount = 0 then
+    if FActionTag = 0 then
     begin
-      Beep;
-      DisplayMsg(
-        Application.Title,
-        'Invalid Selection',
-        'Invalid user right selection',
-        'Please select at least one available right to assign',
-        mtError,
-        [mbOK],
-        False
-        );
-    // 17/01/2013
-    // Using the Exit function here casues the actAssign to be nullified!!!
-    // Changed to an if then else statement and no problems.
-    // Don't know why this is happening??
-//        Exit;
+      if viewAvailable.Controller.SelectedRecordCount = 0 then
+        raise ESelectionException.Create('Invalid user right selection' + CRLF +
+          'Please select at least one available right to assign.');
     end
     else
+      C.SelectAll;
+
+    for I := 0 to C.SelectedRecordCount - 1 do
     begin
-      Response := RUtils.CreateStringList(Response, PIPE);
-      InputList := RUtils.CreateStringList(InputList, SEMI_COLON);
-      try
-        Screen.Cursor := crHourGlass;
-        InputList.Delimiter := COMMA;
-        C := viewAvailable.Controller;
-        DC := viewAvailable.DataController;
-
-        InputList.Clear;
-
-        for I := 0 to FRecIndexList.Count - 1 do
-        begin
-          InputList.DelimitedText := InputList.DelimitedText +
-            'USER_ID=' + UserDM.CurrentUserID.ToString + SEMI_COLON +
-            'RIGHT_ID=' + VarToStr(C.SelectedRecords[I].Values[edtAVID.Index]) + COMMA;
-//          InputList.DelimitedText := InputList.DelimitedText +
-//            'USER_ID=' + IntToStr(UserSDM.cdsUser.FieldByName('ID').AsInteger) + SEMI_COLON +
-//            'RIGHT_ID=' + VarToStr(C.SelectedRecords[I].Values[edtAvailRightID.Index]) + COMMA;
-        end;
-
-        for J := InputList.Count - 1 downto 0 do
-          if Length(InputList[J]) = 0 then
-            InputList.Delete(J);
-
-        Request :=  ' INSERT INTO ASSIGNED_RIGHT(USER_ID, RIGHT_ID) VALUES('+
+      Request := ' INSERT INTO ASSIGNED_RIGHT(USER_ID, RIGHT_ID) VALUES(' +
         UserDM.CurrentUserID.ToString + ',' +
         VarToStr(C.SelectedRecords[I].Values[edtAVID.Index]) + ')';
 
-        Response.DelimitedText :=   VBBaseDM.Client.ExecuteSQLCommand(Request);
+//      Request := Format(ASSIGN_RIGHT, [UserDM.CurrentUserID.ToString + ',' +
+//        VarToStr(C.SelectedRecords[I].Values[edtAVID.Index]) + ')']);
 
-        if SL.Values['RESPONSE'] = 'ERROR' then
-        begin
-          Beep;
-
-          DisplayMsg(
-            Application.Title,
-            Application.Title + ' - Data Retrieval Error',
-            '',
-            'An error occurred in trying to post data.' + CRLF +
-            SL.Values['MESSAGE'] + CRLF + CRLF +
-            SL.Values['SERVER_ERROR_MSG'] + CRLF + CRLF +
-            SL.Values['DEBUG_INFO'],
-            mtError,
-            [mbOK],
-            True
-            );
-
-//          DisplayMsg(Application.Title,
-//            Application.Title + ' - Error Processing Request',
-//            '',
-//            'An error occurred when trying to assign user rights.',
-//            mtError,
-//            [mbOK],
-//            True
-//            );
-          Exit;
-        end
-        else
-        begin
-        // If user already has Super Admin rights
-          if StrToInt(SL.Values['IS_SUPER_ADMIN']) = 1 then
-          begin
-            Beep;
-            DisplayMsg(
-              Application.Title,
-              Application.Title + ' - No Rights Assigned',
-              RCSDM.cdsUser.FieldByName('FIRST_NAME').AsString + ' ' +
-              RCSDM.cdsUser.FieldByName('LAST_NAME').AsString +
-              ' already has Super Admin rights' + CRLF +
-              'and therefore no additional rights need to be ' + CRLF +
-              'assigned to this user.',
-              '',
-              mtInformation,
-              [mbOK],
-              False
-              );
-          end
-          else
-          begin
-            GetAvailableUserRight;
-            GetUserProfile;
-          end;
-        end;
-      finally
-        SL.Free;
-        InputList.Free;
-      end;
+      Response.DelimitedText := VBBaseDM.Client.ExecuteSQLCommand(Request);
     end;
+
+    GetAssignedRights(UserDM.CurrentUserID);
+    GetAvailableRights(UserDM.CurrentUserID);
   finally
+    Response.Free;
     Screen.Cursor := crDefault;
   end;
 end;
 
-procedure TMainFrm.DoRemoveRight(Sender: TObject);
+procedure TMainFrm.DoAssignAllRights(Sender: TObject);
+var
+  I: Integer;
+  DC: TcxCustomDataController;
+  Response: TStringList;
+  Request: string;
+begin
+  inherited;
+  // First find out if this user has SuperUser rights. If so, then it is not
+  // necesary to add any other rights to this user's profile since the SuperUser
+  // has full rights.
+  Screen.Cursor := crHourglass;
+  Response := RUtils.CreateStringList(PIPE, SINGLE_QUOTE);
+
+  try
+    DC := viewAvailable.DataController;
+
+    for I := 0 to DC.RecordCount - 1 do
+    begin
+      Request := ' INSERT INTO ASSIGNED_RIGHT(USER_ID, RIGHT_ID) VALUES(' +
+        UserDM.CurrentUserID.ToString + ',' +
+        VarToStr(DC.Values[I, edtAVID.Index]) + ')';
+
+      Response.DelimitedText := VBBaseDM.Client.ExecuteSQLCommand(Request);
+    end;
+
+    GetAssignedRights(UserDM.CurrentUserID);
+    GetAvailableRights(UserDM.CurrentUserID);
+  finally
+    Response.Free;
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+// Removing of user rights -----------------------------------------------------
+
+procedure TMainFrm.DoRemoveAllRights(Sender: TObject);
 begin
   inherited;
 //
+end;
+
+procedure TMainFrm.DoRemoveRight(Sender: TObject);
+var
+  I: Integer;
+  C: TcxGridTableController;
+  Response: TStringList;
+  Request: string;
+begin
+  inherited;
+  // First find out if this user has SuperUser rights. If so, then it is not
+  // necesary to add any other rights to this user's profile since the SuperUser
+  // has full rights.
+
+  Screen.Cursor := crHourglass;
+  Response := RUtils.CreateStringList(PIPE, SINGLE_QUOTE);
+  FActionTag := TAction(Sender).Tag;
+  C := viewAssigned.Controller;
+
+  try
+    if FActionTag = 0 then
+    begin
+      if C.SelectedRecordCount = 0 then
+        raise ESelectionException.Create('Invalid user right selection' + CRLF +
+          'Please select at least one assigned right to remove.');
+    end
+    else
+      C.SelectAll;
+
+    Response := RUtils.CreateStringList(PIPE, SINGLE_QUOTE);
+
+    for I := 0 to C.SelectedRecordCount - 1 do
+    begin
+      Request := Format(DELETE_RIGHT, [
+        UserDM.CurrentUserID.ToString,
+          VarToStr(C.SelectedRecords[I].Values[edtRightID.Index])]);
+
+      Response.DelimitedText := VBBaseDM.Client.ExecuteSQLCommand(Request);
+    end;
+
+    GetAssignedRights(UserDM.CurrentUserID);
+    GetAvailableRights(UserDM.CurrentUserID);
+  finally
+    Response.Free;
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 procedure TMainFrm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -362,7 +372,7 @@ begin
   Caption := 'User Manager';
 // Self.Width :=
 // Self.Height :=
-  layMain.Align := alClient;
+  layMain.Align := alLeft;
   layMain.LayoutLookAndFeel := lafCustomSkin;
 end;
 
@@ -441,7 +451,6 @@ begin
     VBBaseDM.CurrentPeriod := RUtils.CurrentPeriod(Date);
     VBBaseDM.CurrentMonth := RUtils.MonthInt(Date);
     viewUser.DataController.DataSource := UserDM.dtsSystemUser;
-    navUser.DataSource := UserDM.dtsSystemUser;
     viewAssigned.DataController.DataSource := UserDM.dtsAssignedRight;
     viewAvailable.DataController.DataSource := UserDM.dtsAvailableRight;
 
@@ -624,13 +633,39 @@ begin
     TcxGridSite(TDragControlObject(Source).Control).GridView = viewAssigned;
 end;
 
-procedure TMainFrm.viewAvailableDragDrop(Sender, Source: TObject; X,  Y: Integer);
+procedure TMainFrm.viewAvailableStartDrag(Sender: TObject; var DragObject: TDragObject);
+var
+  C: TcxGridTableController;
+  DC: TcxCustomDataController;
+begin
+  inherited;
+  C := viewAvailable.Controller;
+  DC := viewAvailable.DataController;
+  FActionTag := 0;
+
+  if C.SelectedRecordCount = DC.RecordCount then
+    FActionTag := 1;
+end;
+
+procedure TMainFrm.viewAssignedStartDrag(Sender: TObject; var DragObject: TDragObject);
+var
+  C: TcxGridTableController;
+  DC: TcxCustomDataController;
+begin
+  inherited;
+  C := viewAssigned.Controller;
+  DC := viewAssigned.DataController;
+  FActionTag := 0;
+
+  if C.SelectedRecordCount = DC.RecordCount then
+    FActionTag := 1;
+end;
+
+procedure TMainFrm.viewAvailableDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
   inherited;
   if TcxGridSite(TDragControlObject(Source).Control).GridView = viewAssigned then
-  begin
     actRemoveRight.Execute;
-  end;
 end;
 
 procedure TMainFrm.viewUserCustomDrawCell(Sender: TcxCustomGridTableView;
@@ -652,6 +687,12 @@ begin
         PostMessage(Handle, CM_DRAWBORDER, Integer(ACanvas), Integer(AViewInfo));
       end;
   end;
+end;
+
+procedure TMainFrm.viewUserDblClick(Sender: TObject);
+begin
+  inherited;
+  actEdit.Execute;
 end;
 
 procedure TMainFrm.viewUserFocusedRecordChanged(Sender: TcxCustomGridTableView;

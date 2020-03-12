@@ -4,6 +4,8 @@ uses
   Vcl.Forms,
   System.SysUtils,
   Vcl.Dialogs,
+  System.UITypes,
+  WinApi.Windows,
   Base_DM in '..\..\..\..\Lib\Base_DM.pas' {BaseDM: TDataModule},
   Base_Frm in '..\..\..\..\Lib\Base_Frm.pas' {BaseFrm},
   BaseLayout_Frm in '..\..\..\..\Lib\BaseLayout_Frm.pas' {BaseLayoutFrm},
@@ -18,7 +20,8 @@ uses
   EditUser_Frm in 'General\EditUser_Frm.pas' {EditUserFrm},
   CommonMethods in '..\..\..\..\Lib\CommonMethods.pas',
   CommonFunctions in '..\..\..\..\Lib\CommonFunctions.pas',
-  VBProxyClass in '..\Lib\VBProxyClass.pas';
+  VBProxyClass in '..\Lib\VBProxyClass.pas',
+  ED in '..\..\..\..\Lib\ED.pas';
 
 {$R *.res}
 
@@ -52,7 +55,7 @@ begin
   else
     {$ENDIF}if (AnsiCompareText(LaunchDrive, 'C:') <> 0) then
     begin
-      Beep;
+      System.SysUtils.Beep;
       TaskMessageDlg('Applicaton Launch Error',
         'You cannot run ' + Application.Title + ' from drive ' + LaunchDrive, mtError,
         [mbOK], 0);

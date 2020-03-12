@@ -26,6 +26,9 @@ inherited UserDM: TUserDM
   end
   object cdsSystemUser: TFDMemTable
     ActiveStoredUsage = [auDesignTime]
+    BeforeEdit = cdsSystemUserBeforeEdit
+    AfterPost = cdsSystemUserAfterPost
+    OnNewRecord = cdsSystemUserNewRecord
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
     ConstraintsEnabled = True
@@ -85,6 +88,7 @@ inherited UserDM: TUserDM
       Size = 100
     end
     object cdsSystemUserACCOUNT_ENABLED: TIntegerField
+      Alignment = taLeftJustify
       DisplayLabel = 'Account Enabled'
       FieldName = 'ACCOUNT_ENABLED'
       Origin = 'ACCOUNT_ENABLED'
