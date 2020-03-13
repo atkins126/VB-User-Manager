@@ -45,9 +45,17 @@ type
     edtConfirmPassword: TcxTextEdit;
     edtPassword: TcxTextEdit;
     spc1: TdxLayoutEmptySpaceItem;
+    grpPasswordControl: TdxLayoutGroup;
+    litShowPaassword: TdxLayoutItem;
+    litChangePassword: TdxLayoutItem;
+    cbxShowPassword: TcxCheckBox;
+    spc2: TdxLayoutEmptySpaceItem;
+    spc3: TdxLayoutEmptySpaceItem;
+    cbxChangePassword: TcxDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure btnOKClick(Sender: TObject);
     procedure edtPasswordPropertiesChange(Sender: TObject);
+    procedure cbxShowPasswordPropertiesEditValueChanged(Sender: TObject);
   private
     { Private declarations }
     FPasswordModified: Boolean;
@@ -71,13 +79,14 @@ procedure TEditUserFrm.FormCreate(Sender: TObject);
 begin
   inherited;
   Caption := 'User Account Data';
-  Self.Width := 545;
-  Self.Height := 190;
+  Self.Width := 535;
+  Self.Height := 220; // 160
   edtFirstName.DataBinding.DataSource := UserDM.dtsSystemUser;
   edtLastName.DataBinding.DataSource := UserDM.dtsSystemUser;
   edtLoginName.DataBinding.DataSource := UserDM.dtsSystemUser;
   edtEmailAddress.DataBinding.DataSource := UserDM.dtsSystemUser;
   cbxAccountEnabled.DataBinding.DataSource := UserDM.dtsSystemUser;
+  cbxChangePassword.DataBinding.DataSource := UserDM.dtsSystemUser;
   edtPassword.Text := GetPassword(UserDM.cdsSystemUser.FieldByName('PASSWORD').AsString);
   litMatch.Visible := False;
   litNoMatch.Visible := False;
@@ -149,14 +158,41 @@ begin
 
   if VBBaseDM.DBAction = acInsert then
   begin
-    NextID := VBBaseDM.GetNextID(VBBaseDM.MyDataSet.UpdateOptions.GeneratorName);
-    VBBaseDM.MyDataSet.FieldByName('ID').AsInteger := NextID;
+    NextID := VBBaseDM.GetNextID(UserDM.cdsSystemUser.UpdateOptions.GeneratorName);
+    UserDM.cdsSystemUser.FieldByName('ID').AsInteger := NextID;
   end;
 
-  VBBaseDM.MyDataSet.Post;
-  UserDM.PostData(VBBaseDM.MyDataSet);
+//  UserDM.cdsSystemUser.Post;
+//  UserDM.PostData(UserDM.cdsSystemUser);
+  UserDM.cdsSystemUser.Post;
+  VBBaseDM.PostData(UserDM.cdsSystemUser);
 
   Self.ModalResult := mrOK;
+end;
+
+procedure TEditUserFrm.cbxShowPasswordPropertiesEditValueChanged(Sender: TObject);
+begin
+  inherited;
+  if cbxShowPassword.Checked then
+  begin
+    edtPassword.Style.Font.nAME := 'Verdana';
+    edtPassword.Style.Font.Charset := ANSI_CHARSET;
+    edtPassword.Style.Font.nAME := 'Verdana';
+    edtConfirmPassword.Style.Font.Charset := ANSI_CHARSET;
+    edtConfirmPassword.Properties.PasswordChar := #0;
+    edtPassword.Properties.EchoMode := eemNormal;
+    edtConfirmPassword.Properties.EchoMode := eemNormal;
+  end
+  else
+  begin
+    edtPassword.Style.Font.nAME := 'Wingdings';
+    edtPassword.Style.Font.Charset := SYMBOL_CHARSET;
+    edtPassword.Style.Font.nAME := 'Wingdings';
+    edtConfirmPassword.Style.Font.Charset := SYMBOL_CHARSET;
+    edtConfirmPassword.Properties.PasswordChar := 'l';
+    edtPassword.Properties.EchoMode := eemPassword;
+    edtConfirmPassword.Properties.EchoMode := eemPassword;
+  end;
 end;
 
 procedure TEditUserFrm.edtPasswordPropertiesChange(Sender: TObject);
@@ -168,4 +204,6 @@ begin
 end;
 
 end.
+
+;
 

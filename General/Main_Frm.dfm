@@ -2,12 +2,12 @@ inherited MainFrm: TMainFrm
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'MainFrm'
-  ClientHeight = 611
-  ClientWidth = 1081
+  ClientHeight = 668
+  ClientWidth = 1219
   OnClose = FormClose
   OnDestroy = FormDestroy
-  ExplicitWidth = 1081
-  ExplicitHeight = 611
+  ExplicitWidth = 1219
+  ExplicitHeight = 668
   PixelsPerInch = 96
   TextHeight = 13
   inherited layMain: TdxLayoutControl
@@ -17,7 +17,7 @@ inherited MainFrm: TMainFrm
     ExplicitHeight = 601
     object grdUser: TcxGrid [0]
       Left = 11
-      Top = 75
+      Top = 71
       Width = 1049
       Height = 225
       TabOrder = 1
@@ -36,6 +36,7 @@ inherited MainFrm: TMainFrm
         OptionsBehavior.NavigatorHints = True
         OptionsBehavior.FocusCellOnCycle = True
         OptionsCustomize.ColumnsQuickCustomization = True
+        OptionsView.NoDataToDisplayInfoText = '<No User data to display>'
         OptionsView.GroupByBox = False
         Bands = <
           item
@@ -152,6 +153,45 @@ inherited MainFrm: TMainFrm
           Position.ColIndex = 6
           Position.RowIndex = 0
         end
+        object cbxChangePW: TcxGridDBBandedColumn
+          DataBinding.FieldName = 'CHANGE_PW_NEXT_LOGIN'
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          Properties.Alignment = taCenter
+          Properties.ReadOnly = True
+          Properties.ValueChecked = 1
+          Properties.ValueUnchecked = 0
+          HeaderAlignmentHorz = taCenter
+          HeaderHint = 'Change password at next login'
+          MinWidth = 40
+          Options.Editing = False
+          Options.Filtering = False
+          Options.IncSearch = False
+          Options.Grouping = False
+          Options.HorzSizing = False
+          Options.Moving = False
+          Options.Sorting = False
+          Width = 40
+          Position.BandIndex = 0
+          Position.ColIndex = 7
+          Position.RowIndex = 0
+        end
+        object cbxBoolField: TcxGridDBBandedColumn
+          DataBinding.FieldName = 'BOOL_FIELD'
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          Properties.Alignment = taCenter
+          Properties.ReadOnly = True
+          Properties.OnEditValueChanged = cbxBoolFieldPropertiesEditValueChanged
+          HeaderAlignmentHorz = taCenter
+          Options.Editing = False
+          Options.Filtering = False
+          Options.IncSearch = False
+          Options.Grouping = False
+          Options.Moving = False
+          Options.Sorting = False
+          Position.BandIndex = 0
+          Position.ColIndex = 8
+          Position.RowIndex = 0
+        end
       end
       object lvlUser: TcxGridLevel
         GridView = viewUser
@@ -159,7 +199,7 @@ inherited MainFrm: TMainFrm
     end
     object grdAvailable: TcxGrid [1]
       Left = 615
-      Top = 337
+      Top = 333
       Width = 420
       Height = 225
       DragMode = dmAutomatic
@@ -246,7 +286,7 @@ inherited MainFrm: TMainFrm
     end
     object grdAssigned: TcxGrid [2]
       Left = 20
-      Top = 337
+      Top = 333
       Width = 420
       Height = 225
       DragMode = dmAutomatic
@@ -370,7 +410,7 @@ inherited MainFrm: TMainFrm
     end
     object btnAssign: TcxButton [3]
       Left = 455
-      Top = 384
+      Top = 380
       Width = 145
       Height = 25
       Action = actAssignRight
@@ -382,7 +422,7 @@ inherited MainFrm: TMainFrm
     end
     object btnRemoveRight: TcxButton [4]
       Left = 455
-      Top = 458
+      Top = 454
       Width = 145
       Height = 25
       Action = actRemoveRight
@@ -396,7 +436,7 @@ inherited MainFrm: TMainFrm
     object btnAssignAll: TcxButton [5]
       Tag = 1
       Left = 455
-      Top = 415
+      Top = 411
       Width = 145
       Height = 25
       Action = actAssignAllRights
@@ -408,7 +448,7 @@ inherited MainFrm: TMainFrm
     end
     object btnRemoveAll: TcxButton [6]
       Left = 455
-      Top = 489
+      Top = 485
       Width = 145
       Height = 25
       Action = actRemovAllRights
@@ -423,12 +463,9 @@ inherited MainFrm: TMainFrm
       Left = 11
       Top = 11
       Width = 240
-      Height = 58
+      Height = 54
       Align = dalNone
       BarManager = barManager
-    end
-    inherited layMainGroup_Root: TdxLayoutGroup
-      ItemIndex = 2
     end
     object litToolbar: TdxLayoutItem
       Parent = layMainGroup_Root
@@ -436,7 +473,7 @@ inherited MainFrm: TMainFrm
       CaptionOptions.Visible = False
       Control = docToolbar
       ControlOptions.AutoColor = True
-      ControlOptions.OriginalHeight = 58
+      ControlOptions.OriginalHeight = 54
       ControlOptions.OriginalWidth = 240
       ControlOptions.ShowBorder = False
       Index = 0
@@ -549,6 +586,17 @@ inherited MainFrm: TMainFrm
       CaptionOptions.Text = 'Separator'
       Index = 3
     end
+  end
+  object cxButton1: TcxButton [1]
+    Left = 270
+    Top = 27
+    Width = 75
+    Height = 25
+    Caption = 'cxButton1'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 5
+    OnClick = cxButton1Click
   end
   inherited styRepository: TcxStyleRepository
     Left = 155
@@ -3922,6 +3970,7 @@ inherited MainFrm: TMainFrm
       AllowCustomizing = False
       AllowQuickCustomizing = False
       AllowReset = False
+      BorderStyle = bbsNone
       Caption = 'Toolbar'
       CaptionButtons = <>
       DockControl = docToolbar
@@ -3933,7 +3982,6 @@ inherited MainFrm: TMainFrm
       FloatClientWidth = 0
       FloatClientHeight = 0
       Images = img32
-      IsMainMenu = True
       ItemLinks = <
         item
           Visible = True
@@ -3955,14 +4003,13 @@ inherited MainFrm: TMainFrm
           Visible = True
           ItemName = 'btnRefresh'
         end>
-      MultiLine = True
       NotDocking = [dsNone, dsLeft, dsTop, dsRight, dsBottom]
       OneOnRow = True
       Row = 0
       SizeGrip = False
       UseOwnFont = False
       Visible = True
-      WholeRow = True
+      WholeRow = False
     end
     object btnClose: TdxBarLargeButton
       Action = actExit

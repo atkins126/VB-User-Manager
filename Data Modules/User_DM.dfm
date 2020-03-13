@@ -25,6 +25,7 @@ inherited UserDM: TUserDM
     Top = 12
   end
   object cdsSystemUser: TFDMemTable
+    Tag = 24
     ActiveStoredUsage = [auDesignTime]
     BeforeEdit = cdsSystemUserBeforeEdit
     AfterPost = cdsSystemUserAfterPost
@@ -94,6 +95,12 @@ inherited UserDM: TUserDM
       Origin = 'ACCOUNT_ENABLED'
       Required = True
     end
+    object cdsSystemUserCHANGE_PW_NEXT_LOGIN: TIntegerField
+      Alignment = taLeftJustify
+      DisplayLabel = 'PW'
+      FieldName = 'CHANGE_PW_NEXT_LOGIN'
+      Origin = 'CHANGE_PW_NEXT_LOGIN'
+    end
   end
   object dtsSystemUser: TDataSource
     DataSet = cdsSystemUser
@@ -102,6 +109,7 @@ inherited UserDM: TUserDM
     Top = 65
   end
   object cdsUserRight: TFDMemTable
+    Tag = 29
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -146,6 +154,7 @@ inherited UserDM: TUserDM
     end
   end
   object cdsAssignedRight: TFDMemTable
+    Tag = 31
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True
@@ -189,6 +198,7 @@ inherited UserDM: TUserDM
     end
   end
   object cdsAvailableRight: TFDMemTable
+    Tag = 32
     ActiveStoredUsage = [auDesignTime]
     FilterOptions = [foCaseInsensitive]
     CachedUpdates = True

@@ -14,7 +14,8 @@ uses
   FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Data.SqlExpr, FireDAC.UI.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.FB,
-  FireDAC.Phys.FBDef, FireDAC.VCLUI.Wait, FireDAC.Phys.IBBase, FireDAC.Comp.UI;
+  FireDAC.Phys.FBDef, FireDAC.VCLUI.Wait, FireDAC.Phys.IBBase, FireDAC.Comp.UI,
+  FireDAC.DApt;
 
 type
   TUserDM = class(TVBBaseDM)
@@ -45,6 +46,7 @@ type
     cdsAvailableRightDESCRIPTION: TStringField;
     cdsAssignedRightRIGHT_NAME: TStringField;
     cdsAssignedRightRIGHT_DESC: TStringField;
+    cdsSystemUserCHANGE_PW_NEXT_LOGIN: TIntegerField;
     procedure dtsSystemUserStateChange(Sender: TObject);
     procedure PostData(DataSet: TFDMemTable);
     procedure cdsSystemUserBeforeEdit(DataSet: TDataSet);
@@ -53,7 +55,7 @@ type
   private
     FCurrentUserID: Integer;
     { Private declarations }
-    protected
+  protected
   public
     { Public declarations }
     property CurrentUserID: Integer read FCurrentUserID write FCurrentUserID;
@@ -79,7 +81,7 @@ end;
 procedure TUserDM.cdsSystemUserBeforeEdit(DataSet: TDataSet);
 begin
   inherited;
-    VBBaseDM.DBAction := acModify;
+  VBBaseDM.DBAction := acModify;
 end;
 
 procedure TUserDM.cdsSystemUserNewRecord(DataSet: TDataSet);
@@ -97,12 +99,16 @@ begin
   SendMessage(Application.MainForm.Handle, WM_STATE_CHANGE, DWORD(PChar(EditMode)), 0);
 end;
 
-
 procedure TUserDM.PostData(DataSet: TFDMemTable);
 begin
-  SetLength(VBBaseDM.FDataSetArray, 1);
-  VBBaseDM.FDataSetArray[0] := TFDMemTable(DataSet);
-  VBBaseDM.ApplyUpdates(VBBaseDM.FDataSetArray, TFDMemTable(DataSet).UpdateOptions.Generatorname, TFDMemTable(DataSet).UpdateOptions.UpdateTableName);
+//  SetLength(VBBaseDM.FDataSetArray, 1);
+//  VBBaseDM.FDataSetArray[0] := TFDMemTable(DataSet);
+//  VBBaseDM.ApplyUpdates(VBBaseDM.FDataSetArray, TFDMemTable(DataSet).UpdateOptions.Generatorname,
+//    TFDMemTable(DataSet).UpdateOptions.UpdateTableName,
+//    TFDMemTable(DataSet).Tag);
+//
+//    TFDMemTable(DataSet).CommitUpdates;
 end;
 
 end.
+

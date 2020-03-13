@@ -152,8 +152,8 @@
         </DCCReference>
         <DCCReference Include="..\..\..\..\Lib\CommonMethods.pas"/>
         <DCCReference Include="..\..\..\..\Lib\CommonFunctions.pas"/>
-        <DCCReference Include="..\Lib\VBProxyClass.pas"/>
         <DCCReference Include="..\..\..\..\Lib\ED.pas"/>
+        <DCCReference Include="..\Lib\VBProxyClass.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

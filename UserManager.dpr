@@ -20,8 +20,8 @@ uses
   EditUser_Frm in 'General\EditUser_Frm.pas' {EditUserFrm},
   CommonMethods in '..\..\..\..\Lib\CommonMethods.pas',
   CommonFunctions in '..\..\..\..\Lib\CommonFunctions.pas',
-  VBProxyClass in '..\Lib\VBProxyClass.pas',
-  ED in '..\..\..\..\Lib\ED.pas';
+  ED in '..\..\..\..\Lib\ED.pas',
+  VBProxyClass in '..\Lib\VBProxyClass.pas';
 
 {$R *.res}
 

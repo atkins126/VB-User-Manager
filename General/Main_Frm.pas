@@ -95,6 +95,9 @@ type
     actRemoveRight: TAction;
     actAssignAllRights: TAction;
     actRemovAllRights: TAction;
+    cbxChangePW: TcxGridDBBandedColumn;
+    cbxBoolField: TcxGridDBBandedColumn;
+    cxButton1: TcxButton;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DoExitUserManager(Sender: TObject);
@@ -125,6 +128,8 @@ type
     procedure viewAssignedStartDrag(Sender: TObject;
       var DragObject: TDragObject);
     procedure viewUserDblClick(Sender: TObject);
+    procedure cbxBoolFieldPropertiesEditValueChanged(Sender: TObject);
+    procedure cxButton1Click(Sender: TObject);
   private
     { Private declarations }
     FRecIndexList: TList;
@@ -157,7 +162,8 @@ uses
   User_DM,
   VBBase_DM,
   RUtils,
-  MsgDialog_Frm, EditUser_Frm;
+  MsgDialog_Frm,
+  EditUser_Frm;
 
 procedure TMainFrm.DrawCellBorder(var Msg: TMessage);
 begin
@@ -217,9 +223,15 @@ begin
 end;
 
 procedure TMainFrm.DoRefresh(Sender: TObject);
+var
+  ID: Integer;
 begin
   inherited;
-//
+  ID := UserDM.cdsSystemUser.FieldByName('ID').AsInteger;
+  OpenTables;
+
+  if not UserDM.cdsSystemUser.Locate('ID', ID, []) then
+    UserDM.cdsSystemUser.First;
 end;
 
 //Assigining of user rights ----------------------------------------------------
@@ -269,6 +281,23 @@ begin
     Response.Free;
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TMainFrm.cbxBoolFieldPropertiesEditValueChanged(Sender: TObject);
+begin
+  inherited;
+//  UserDM.cdsSystemUser.Post;
+//  UserDM.PostData(UserDM.cdsSystemUser);
+end;
+
+procedure TMainFrm.cxButton1Click(Sender: TObject);
+begin
+  inherited;
+  UserDM.cdsSystemUser.Edit;
+  UserDM.cdsSystemUser.FieldByName('BOOL_FIELD').AsBoolean :=
+    not UserDM.cdsSystemUser.FieldByName('BOOL_FIELD').AsBoolean;
+  UserDM.cdsSystemUser.Post;
+  VBBaseDM.PostData(UserDM.cdsSystemUser);
 end;
 
 procedure TMainFrm.DoAssignAllRights(Sender: TObject);
